@@ -1,0 +1,46 @@
+plugins {
+    id 'com.chrisgahlert.gradle-dcompose-plugin' version '0.9.3'
+}
+
+ext {
+    TZ='Australia/Sydney'
+
+    // shared folder for mapping files to containers
+    userHome = (project.file(System.properties['user.home']).toURI().toString() - 'file:')
+            .replaceAll('/([A-Za-z]):/', '/$1/') - 'file:'
+    println "home: $userHome"
+    dockerlocal = "${userHome}dockerlocal"
+    println "dockerlocal: $dockerlocal"
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+dcompose {
+    //dockerClientConfig = { withDockerHost 'tcp://dockerlocal:2375' }
+    portainer {
+        image = "portainer/portainer"
+        env = ["TZ=$TZ"]
+        portBindings = ['9000:9000']
+        binds = ['portainer_data:/data',
+            '/var/run/docker.sock:/var/run/docker.sock']
+        preserveVolumes = true
+    }
+    database {
+        baseDir = file 'database'
+        env = ["TZ=$TZ"]
+        portBindings = ['1433:1433']
+        preserveVolumes = true // allow DB data to persist
+        binds = ['mssqldata:/var/opt/mssql/data']
+        memory = 3000000000L // 3g
+    }
+    websphere {
+        baseDir = file 'websphere'
+        env = ["TZ=$TZ"]
+        exposedPorts = ['9043', '9443']
+        portBindings = ['9043:9043', '9443:9443']
+        binds = ["$dockerlocal/logs:/logs"]
+    }
+}

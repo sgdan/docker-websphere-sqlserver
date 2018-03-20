@@ -1,0 +1,50 @@
+Cell
+ Security
+  JAASAuthData
+   *alias testdbalias
+   -userId testuser
+   -password testpass
+Node
+ *name $[nodeName]
+ Server
+  *name $[serverName]
+  -processDefinitions
+   JavaProcessDef
+    -jvmEntries
+     JavaVirtualMachine
+      -genericJvmArguments -Xverbosegclog:${SERVER_LOG_ROOT}/gc.log,9,1000
+      -systemProperties
+       Property
+        *name java.awt.headless
+        -value true
+  JDBCProvider
+   *name SqlServerProvider
+   -classpath ${WAS_LIBS_DIR}/jtds-1.3.1.jar
+   -description SQL Server JDBC Driver
+   -implementationClassName net.sourceforge.jtds.jdbcx.JtdsDataSource
+   -isolatedClassLoader false
+   -providerType Microsoft SQL Server JDBC Driver
+   -xa false
+   DataSource
+    *name TestDataSource
+    -jndiName testds
+    -authDataAlias testdbalias
+    -propertySet
+     J2EEResourcePropertySet
+      -resourceProperties
+       J2EEResourceProperty
+        *name databaseName
+        -value testdb
+        -type java.lang.String
+       J2EEResourceProperty
+        *name serverName
+        -value database
+        -type java.lang.String
+       J2EEResourceProperty
+        *name portNumber
+        -value 1433
+        -type java.lang.Integer
+       J2EEResourceProperty
+        *name driverType
+        -value 4
+        -type java.lang.Integer
